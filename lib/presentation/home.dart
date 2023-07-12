@@ -13,6 +13,8 @@ class Home extends StatelessWidget {
     final lonController = TextEditingController();
     final zoomController = TextEditingController();
 
+    final fromKey = GlobalKey<FormState>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('geo service'),
@@ -24,6 +26,7 @@ class Home extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Form(
+              key: fromKey,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -51,35 +54,29 @@ class Home extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             OutlinedButton(
-              onPressed: latController.text.isEmpty ||
-                      lonController.text.isEmpty ||
-                      zoomController.text.isEmpty
-                  ? null
-                  : () async {
-                      final lon = double.parse(lonController.text);
-                      final lat = double.parse(latController.text);
-                      final zoom =
-                          double.parse(zoomController.text).roundToDouble();
+              onPressed: () async {
+                if (fromKey.currentState!.validate()) {
+                  final lon = double.parse(lonController.text);
+                  final lat = double.parse(latController.text);
+                  final zoom =
+                      double.parse(zoomController.text).roundToDouble();
 
-                      // долгота lon
-                      final x = longToTileX(lon: lon, zoom: zoom);
+                  // долгота lon
+                  final x = longToTileX(lon: lon, zoom: zoom);
 
-                      // широта lat
-                      final y = latToTileY(lat: lat, zoom: zoom);
+                  // широта lat
+                  final y = latToTileY(lat: lat, zoom: zoom);
 
-                      final url = Uri.parse(
-                        'https://core-carparks-renderer-lots.maps.yandex.net/maps-rdr-carparks/tiles?l=carparks&x=$x&y=$y&z=$zoom&scale=1&lang=ru_RU',
-                      );
+                  final url = Uri.parse(
+                    'https://core-carparks-renderer-lots.maps.yandex.net/maps-rdr-carparks/tiles?l=carparks&x=$x&y=$y&z=$zoom&scale=1&lang=ru_RU',
+                  );
 
-                      if (!await launchUrl(url)) {
-                        throw Exception('Could not launch $url');
-                      }
-                    },
-              child: latController.text.isEmpty ||
-                      lonController.text.isEmpty ||
-                      zoomController.text.isEmpty
-                  ? const Text('Заполните широту, долготу и зум')
-                  : const Text('Рассчитать'),
+                  if (!await launchUrl(url)) {
+                    throw Exception('Could not launch $url');
+                  }
+                }
+              },
+              child: const Text('Рассчитать'),
             ),
           ],
         ),

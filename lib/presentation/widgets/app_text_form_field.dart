@@ -40,6 +40,12 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
             iconColor: Colors.black,
           ),
         ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Введены некорректные координаты';
+          }
+          return null;
+        },
         onChanged: (value) {
           setState(() {
             widget.controller.text = value;
